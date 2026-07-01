@@ -17,8 +17,8 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-      # Comma-separated list of Expo/app origins — add your Render URL itself too
-      # e.g. https://dfood-api.onrender.com,exp://
+      # Comma-separated list of allowed origins
+      # e.g. https://food-delivery-app-t5ru.onrender.com,exp://
       - key: CORS_ALLOWED_ORIGINS
         sync: false
     autoDeploy: true

@@ -13,12 +13,12 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://dfood-api.onrender.com/api"
+        "EXPO_PUBLIC_API_URL": "https://food-delivery-app-t5ru.onrender.com/api"
       }
     },
     "production": {
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://dfood-api.onrender.com/api"
+        "EXPO_PUBLIC_API_URL": "https://food-delivery-app-t5ru.onrender.com/api"
       }
     }
   },
