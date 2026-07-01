@@ -35,7 +35,9 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "NOTIFICATIONS",
-        "VIBRATE"
+        "VIBRATE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "softwareKeyboardLayoutMode": "pan"
     },
@@ -58,6 +60,12 @@
           "sounds": []
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f1dfcd09-01f2-4ff2-a294-111b398f6b7e"
+      }
+    },
+    "owner": "peter_yagnesh"
   }
 }
