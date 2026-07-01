@@ -1,0 +1,6 @@
+mobile/
+backend/target/
+backend/.env
+backend/.env.*
+*.log
+.git/
