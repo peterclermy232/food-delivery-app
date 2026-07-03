@@ -46,8 +46,11 @@ export const SellerDashboardScreen: React.FC = () => {
       ]);
       setOrders(ordersRes.data.data || []);
       setRestaurants(restRes.data.data || []);
-    } catch {
-      if (!silent) Alert.alert('Error', 'Could not load orders');
+    } catch (e: any) {
+      const status = e?.response?.status;
+      const message = e?.response?.data?.message || e?.message || 'Unknown error';
+      console.error('Failed to load seller dashboard', status, message);
+      if (!silent) Alert.alert('Error', status ? `Error ${status}: ${message}` : message);
     } finally {
       setLoading(false);
       setRefreshing(false);
