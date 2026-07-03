@@ -18,16 +18,21 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState<'Ongoing' | 'History'>('Ongoing');
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       const load = async () => {
         setLoading(true);
+        setError(null);
         try {
           const res = await orderApi.getAll();
           setOrders(res.data.data || []);
-        } catch (e) {
-          console.error('Failed to load orders', e);
+        } catch (e: any) {
+          const status = e?.response?.status;
+          const message = e?.response?.data?.message || e?.message || 'Unknown error';
+          console.error('Failed to load orders', status, message);
+          setError(status ? `Error ${status}: ${message}` : message);
         } finally {
           setLoading(false);
         }
@@ -141,6 +146,11 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      ) : error ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>Failed to load orders</Text>
+          <Text style={[styles.emptyText, { fontSize: 12, marginTop: 4 }]}>{error}</Text>
         </View>
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
