@@ -53,6 +53,7 @@ public class RestaurantService {
         Restaurant r = Restaurant.builder()
                 .name(name)
                 .description((String) body.getOrDefault("description", ""))
+                .imageUrl((String) body.get("imageUrl"))
                 .address((String) body.getOrDefault("address", ""))
                 .deliveryFee(body.get("deliveryFee") != null ? ((Number) body.get("deliveryFee")).doubleValue() : 0.0)
                 .deliveryTimeMinutes(body.get("deliveryTimeMinutes") != null ? ((Number) body.get("deliveryTimeMinutes")).intValue() : 30)
@@ -73,6 +74,8 @@ public class RestaurantService {
             r.setName((String) body.get("name"));
         if (body.containsKey("description"))
             r.setDescription((String) body.get("description"));
+        if (body.containsKey("imageUrl"))
+            r.setImageUrl((String) body.get("imageUrl"));
         if (body.containsKey("address"))
             r.setAddress((String) body.get("address"));
         if (body.containsKey("deliveryFee") && body.get("deliveryFee") != null)

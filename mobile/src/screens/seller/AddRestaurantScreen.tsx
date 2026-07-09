@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Switch,
+  TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Switch, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { sellerApi } from '../../services/api';
+import { pickAndUploadImage } from '../../utils/imageUpload';
 
 interface Props { navigation: any; route: any; }
 
@@ -26,7 +27,21 @@ export const AddRestaurantScreen: React.FC<Props> = ({ navigation, route }) => {
   const [deliveryTime, setDeliveryTime] = useState(existing?.deliveryTimeMinutes?.toString() || '');
   const [isOpen, setIsOpen] = useState(existing?.isOpen ?? true);
   const [selectedCats, setSelectedCats] = useState<string[]>(existing?.categories || []);
+  const [imageUrl, setImageUrl] = useState<string | null>(existing?.imageUrl || null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const handlePickImage = async () => {
+    setUploadingImage(true);
+    try {
+      const url = await pickAndUploadImage();
+      if (url) setImageUrl(url);
+    } catch (err: any) {
+      Alert.alert('Error', err?.response?.data?.message || err?.message || 'Failed to upload photo.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const toggleCat = (cat: string) => {
     setSelectedCats(prev =>
@@ -48,6 +63,7 @@ export const AddRestaurantScreen: React.FC<Props> = ({ navigation, route }) => {
       const payload = {
         name: name.trim(),
         description: description.trim(),
+        imageUrl,
         address: address.trim(),
         deliveryFee: parseFloat(deliveryFee) || 0,
         deliveryTimeMinutes: parseInt(deliveryTime) || 30,
@@ -100,6 +116,32 @@ export const AddRestaurantScreen: React.FC<Props> = ({ navigation, route }) => {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Text style={styles.fieldLabel}>Photo</Text>
+          <TouchableOpacity style={styles.photoPicker} onPress={handlePickImage} disabled={uploadingImage}>
+            {imageUrl ? (
+              <Image source={{ uri: imageUrl }} style={styles.photoPreview} resizeMode="cover" />
+            ) : (
+              <View style={styles.photoPlaceholder}>
+                {uploadingImage ? (
+                  <ActivityIndicator color={Colors.primary} />
+                ) : (
+                  <>
+                    <Ionicons name="camera-outline" size={28} color={Colors.textSecondary} />
+                    <Text style={styles.photoPlaceholderText}>Add a photo</Text>
+                  </>
+                )}
+              </View>
+            )}
+            {imageUrl && uploadingImage && (
+              <View style={styles.photoOverlay}><ActivityIndicator color={Colors.white} /></View>
+            )}
+            {imageUrl && !uploadingImage && (
+              <View style={styles.photoEditBadge}>
+                <Ionicons name="camera" size={14} color={Colors.white} />
+              </View>
+            )}
+          </TouchableOpacity>
+
           <Field label="Restaurant Name *" value={name} onChangeText={setName} placeholder="e.g. Mario's Kitchen" />
           <Field label="Description" value={description} onChangeText={setDescription} placeholder="What makes your restaurant special?" multiline />
           <Field label="Address *" value={address} onChangeText={setAddress} placeholder="Street, City" />
@@ -174,6 +216,12 @@ const styles = StyleSheet.create({
   row:             { flexDirection: 'row' },
   fieldGroup:      { marginBottom: 16 },
   fieldLabel:      { fontSize: 13, fontWeight: '700', color: Colors.dark, marginBottom: 7 },
+  photoPicker:       { width: '100%', height: 160, borderRadius: 12, overflow: 'hidden', marginBottom: 16 },
+  photoPreview:      { width: '100%', height: '100%' },
+  photoPlaceholder:  { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.inputBg, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, borderStyle: 'dashed', gap: 6 },
+  photoPlaceholderText: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },
+  photoOverlay:      { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
+  photoEditBadge:    { position: 'absolute', bottom: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   input:           { borderWidth: 1.5, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 11, fontSize: 14, color: Colors.dark, backgroundColor: Colors.inputBg },
   textarea:        { minHeight: 90, paddingTop: 12 },
   toggleRow:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1.5, borderColor: Colors.border, borderRadius: 12, padding: 14, marginBottom: 16, backgroundColor: Colors.inputBg },

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
@@ -27,6 +27,9 @@ export const FoodDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     <View style={styles.container}>
       {/* Hero Image */}
       <View style={styles.hero}>
+        {food.image ? (
+          <Image source={{ uri: food.image }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+        ) : null}
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Text style={styles.backArrow}>‹</Text>
         </TouchableOpacity>

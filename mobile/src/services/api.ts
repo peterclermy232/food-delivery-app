@@ -119,6 +119,13 @@ export const categoryApi = {
   getAll: () => api.get('/categories'),
 };
 
+export const uploadApi = {
+  image: (formData: FormData) =>
+    api.post('/uploads/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+};
+
 export const reviewApi = {
   getByRestaurant: (restaurantId: string) => api.get(`/restaurants/${restaurantId}/reviews`),
   getByFood: (foodId: string) => api.get(`/foods/${foodId}/reviews`),

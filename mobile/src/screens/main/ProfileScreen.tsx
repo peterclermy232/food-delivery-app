@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -146,7 +146,11 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         {/* Avatar, name, role badge */}
         <View style={styles.profileTop}>
           <View style={styles.avatar}>
-            <Ionicons name="person" size={38} color={Colors.primary} />
+            {user?.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} resizeMode="cover" />
+            ) : (
+              <Ionicons name="person" size={38} color={Colors.primary} />
+            )}
           </View>
           <Text style={styles.userName}>{user?.name || 'User'}</Text>
           {user?.bio ? <Text style={styles.userBio}>{user.bio}</Text> : null}
@@ -205,7 +209,8 @@ const styles = StyleSheet.create({
   backArrow:   { fontSize: 24, color: Colors.dark, lineHeight: 28 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.dark },
   profileTop:  { alignItems: 'center', paddingVertical: 24, backgroundColor: Colors.white, marginBottom: 12 },
-  avatar:      { width: 80, height: 80, borderRadius: 40, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  avatar:      { width: 80, height: 80, borderRadius: 40, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: 12, overflow: 'hidden' },
+  avatarImage: { width: '100%', height: '100%' },
   userName:    { fontSize: 20, fontWeight: '700', color: Colors.dark, marginBottom: 4 },
   userBio:     { fontSize: 13, color: Colors.textSecondary, marginBottom: 8 },
   roleBadge:   { borderRadius: 20, paddingHorizontal: 14, paddingVertical: 5, marginTop: 4 },

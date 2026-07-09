@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
@@ -7,6 +7,7 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
 import { profileApi } from '../../services/api';
+import { pickImageFile, toFormData } from '../../utils/imageUpload';
 
 interface Props { navigation: any; }
 
@@ -16,6 +17,22 @@ export const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
   const [phone, setPhone] = useState(user?.phone || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handlePickAvatar = async () => {
+    setUploadingAvatar(true);
+    try {
+      const file = await pickImageFile();
+      if (!file) return;
+      const res = await profileApi.uploadAvatar(toFormData(file));
+      const avatarUrl = res.data.data.avatarUrl;
+      updateUser({ ...user!, avatarUrl });
+    } catch (err: any) {
+      Alert.alert('Error', err?.response?.data?.message || err?.message || 'Failed to upload photo.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     setLoading(true);
@@ -42,8 +59,15 @@ export const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
       <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.avatarSection}>
-          <View style={styles.avatar} />
-          <TouchableOpacity style={styles.editAvatarBtn}>
+          <View style={styles.avatar}>
+            {user?.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} resizeMode="cover" />
+            ) : null}
+            {uploadingAvatar && (
+              <View style={styles.avatarOverlay}><ActivityIndicator color={Colors.white} /></View>
+            )}
+          </View>
+          <TouchableOpacity style={styles.editAvatarBtn} onPress={handlePickAvatar} disabled={uploadingAvatar}>
             <Ionicons name="pencil" size={14} color={Colors.white} />
           </TouchableOpacity>
         </View>
@@ -71,7 +95,9 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.dark },
   content: { flex: 1 },
   avatarSection: { alignItems: 'center', paddingVertical: 24, position: 'relative' },
-  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: Colors.primaryLight },
+  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: Colors.primaryLight, overflow: 'hidden' },
+  avatarImage: { width: '100%', height: '100%' },
+  avatarOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
   editAvatarBtn: {
     position: 'absolute', bottom: 22, right: '40%',
     width: 28, height: 28, borderRadius: 14,

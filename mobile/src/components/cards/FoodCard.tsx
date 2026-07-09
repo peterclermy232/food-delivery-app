@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { FoodItem } from '../../types';
@@ -13,7 +13,11 @@ interface FoodCardProps {
 export const FoodCard: React.FC<FoodCardProps> = ({ food, onPress, onAdd }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
-      <View style={styles.imagePlaceholder} />
+      <View style={styles.imagePlaceholder}>
+        {food.image ? (
+          <Image source={{ uri: food.image }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+        ) : null}
+      </View>
       <Text style={styles.name} numberOfLines={2}>{food.name}</Text>
       <Text style={styles.restaurant} numberOfLines={1}>{food.restaurantName}</Text>
       <View style={styles.footer}>

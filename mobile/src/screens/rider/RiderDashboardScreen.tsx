@@ -113,6 +113,7 @@ export const RiderDashboardScreen: React.FC = () => {
   const activeDeliveries = orders.filter(o => o.status === 'picked_up');
   const readyPickups = orders.filter(o => o.status === 'preparing');
   const completedDeliveries = orders.filter(o => o.status === 'delivered');
+  const totalEarned = completedDeliveries.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -146,6 +147,16 @@ export const RiderDashboardScreen: React.FC = () => {
         <View style={[styles.statBox, styles.statBorder]}>
           <Text style={styles.statValue}>{completedDeliveries.length}</Text>
           <Text style={styles.statLabel}>Delivered</Text>
+        </View>
+        <View style={[styles.statBox, styles.statBorder]}>
+          <Text
+            style={[styles.statValue, { color: Colors.success, fontSize: 14 }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            {fmt(totalEarned)}
+          </Text>
+          <Text style={styles.statLabel}>Earned</Text>
         </View>
       </View>
 

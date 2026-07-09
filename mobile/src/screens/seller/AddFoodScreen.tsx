@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Switch,
+  TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Switch, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { sellerApi } from '../../services/api';
+import { pickAndUploadImage } from '../../utils/imageUpload';
 
 interface Props { navigation: any; route: any; }
 
@@ -27,7 +28,21 @@ export const AddFoodScreen: React.FC<Props> = ({ navigation, route }) => {
   const [customSize, setCustomSize] = useState('');
   const [forDelivery, setForDelivery] = useState(existing?.availableForDelivery ?? true);
   const [forPickup, setForPickup] = useState(existing?.availableForPickup ?? true);
+  const [imageUrl, setImageUrl] = useState<string | null>(existing?.imageUrl || null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const handlePickImage = async () => {
+    setUploadingImage(true);
+    try {
+      const url = await pickAndUploadImage();
+      if (url) setImageUrl(url);
+    } catch (err: any) {
+      Alert.alert('Error', err?.response?.data?.message || err?.message || 'Failed to upload photo.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const toggleSize = (s: string) =>
     setSizes(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
@@ -53,6 +68,7 @@ export const AddFoodScreen: React.FC<Props> = ({ navigation, route }) => {
         name: name.trim(),
         description: description.trim(),
         price: parseFloat(price),
+        imageUrl,
         category,
         mealTime,
         sizes,
@@ -89,6 +105,35 @@ export const AddFoodScreen: React.FC<Props> = ({ navigation, route }) => {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+
+          {/* Photo */}
+          <Text style={styles.sectionTitle}>Photo</Text>
+          <View style={styles.card}>
+            <TouchableOpacity style={styles.photoPicker} onPress={handlePickImage} disabled={uploadingImage}>
+              {imageUrl ? (
+                <Image source={{ uri: imageUrl }} style={styles.photoPreview} resizeMode="cover" />
+              ) : (
+                <View style={styles.photoPlaceholder}>
+                  {uploadingImage ? (
+                    <ActivityIndicator color={Colors.primary} />
+                  ) : (
+                    <>
+                      <Ionicons name="camera-outline" size={28} color={Colors.textSecondary} />
+                      <Text style={styles.photoPlaceholderText}>Add a photo</Text>
+                    </>
+                  )}
+                </View>
+              )}
+              {imageUrl && uploadingImage && (
+                <View style={styles.photoOverlay}><ActivityIndicator color={Colors.white} /></View>
+              )}
+              {imageUrl && !uploadingImage && (
+                <View style={styles.photoEditBadge}>
+                  <Ionicons name="camera" size={14} color={Colors.white} />
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
 
           {/* Name & Price */}
           <Text style={styles.sectionTitle}>Basic Info</Text>
@@ -258,6 +303,12 @@ const styles = StyleSheet.create({
   sectionTitle:      { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 12, marginBottom: 8, paddingHorizontal: 2, letterSpacing: 0.5, textTransform: 'uppercase' },
   sectionHint:       { fontSize: 11, fontWeight: '400', color: Colors.textMuted, textTransform: 'none' },
   card:              { backgroundColor: Colors.white, borderRadius: 16, padding: 16, marginBottom: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
+  photoPicker:       { width: '100%', height: 160, borderRadius: 12, overflow: 'hidden' },
+  photoPreview:      { width: '100%', height: '100%' },
+  photoPlaceholder:  { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.inputBg, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, borderStyle: 'dashed', gap: 6 },
+  photoPlaceholderText: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },
+  photoOverlay:      { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
+  photoEditBadge:    { position: 'absolute', bottom: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   label:             { fontSize: 13, fontWeight: '600', color: Colors.dark, marginBottom: 7 },
   input:             { borderWidth: 1.5, borderColor: Colors.border, borderRadius: 10, paddingHorizontal: 13, paddingVertical: 10, fontSize: 14, color: Colors.dark, backgroundColor: Colors.inputBg, marginBottom: 14 },
   textarea:          { minHeight: 80, paddingTop: 10 },

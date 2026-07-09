@@ -59,6 +59,13 @@
           "color": "#FC6011",
           "sounds": []
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "DFood needs access to your photos so you can add pictures of your food and restaurant.",
+          "cameraPermission": "DFood needs access to your camera so you can take pictures of your food and restaurant."
+        }
       ]
     ],
     "extra": {

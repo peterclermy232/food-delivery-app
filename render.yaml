@@ -21,4 +21,13 @@ services:
       # e.g. https://food-delivery-app-t5ru.onrender.com,exp://
       - key: CORS_ALLOWED_ORIGINS
         sync: false
+      # Supabase project URL, e.g. https://xxxxx.supabase.co
+      - key: SUPABASE_URL
+        sync: false
+      # Supabase service_role key (Project Settings → API) — server-side only, never expose to the app
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # Storage bucket name (must exist and be public) — defaults to food-images if unset
+      - key: SUPABASE_BUCKET
+        sync: false
     autoDeploy: true
